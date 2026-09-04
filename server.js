@@ -12,23 +12,15 @@ const PORT = process.env.PORT || 3000;
 const billingRoutes = require("./server/routes/billingRoutes");
 const paymentRoutes = require("./server/routes/paymentRoutes");
 
-// Parse JSON requests and preserve the raw body
-// for Paystack webhook signature verification.
 app.use(
-  express.json({
-    verify: (req, res, buf) => {
-      req.rawBody = buf;
-    },
-  }),
+  express.json({ verify: (req, res, buf) => { req.rawBody = buf; }, }),
 );
 
 app.use(express.urlencoded({ extended: true }));
 
-// API routes
 app.use("/api/billing", billingRoutes);
 app.use("/api/payments", paymentRoutes);
 
-// Paystack payment callback
 app.get("/payment/callback", (req, res) => {
   const reference = req.query.reference;
 
@@ -43,7 +35,7 @@ app.get("/payment/callback", (req, res) => {
   );
 });
 
-// Paystack webhook
+
 app.post("/api/payments/webhook", async (req, res) => {
   try {
     const signature = req.headers["x-paystack-signature"];
@@ -72,9 +64,7 @@ app.post("/api/payments/webhook", async (req, res) => {
 
     const event = req.body;
 
-    /*
-     * We only process successful charge events.
-     */
+  
     if (event.event !== "charge.success") {
       return res.status(200).json({
         received: true,
@@ -104,7 +94,7 @@ app.post("/api/payments/webhook", async (req, res) => {
     try {
       await client.query("BEGIN");
 
-      // Find the payment attempt using the Paystack reference
+  
       const attemptResult = await client.query(
         `
         SELECT
@@ -143,8 +133,7 @@ app.post("/api/payments/webhook", async (req, res) => {
       const paymentAttempt =
         attemptResult.rows[0];
 
-      // Idempotency:
-      // Do not process an already successful payment again.
+  
       if (
         paymentAttempt.status === "successful"
       ) {
@@ -162,7 +151,7 @@ app.post("/api/payments/webhook", async (req, res) => {
         });
       }
 
-      // Verify payment amount
+  
       const webhookAmount =
         Number(event.data.amount) / 100;
 
@@ -186,7 +175,7 @@ app.post("/api/payments/webhook", async (req, res) => {
         });
       }
 
-      // Verify payment currency
+
       const webhookCurrency =
         String(
           event.data.currency || ""
@@ -216,7 +205,7 @@ app.post("/api/payments/webhook", async (req, res) => {
         });
       }
 
-      // Mark payment attempt as successful
+  
       await client.query(
         `
         UPDATE payment_attempts
@@ -228,7 +217,7 @@ app.post("/api/payments/webhook", async (req, res) => {
         [paymentAttempt.id]
       );
 
-      // Check whether the transaction already exists
+
       const transactionResult =
         await client.query(
           `
@@ -241,7 +230,7 @@ app.post("/api/payments/webhook", async (req, res) => {
           [reference]
         );
 
-      // Create transaction if it does not already exist
+    
       if (
         transactionResult.rows.length === 0
       ) {
@@ -276,7 +265,6 @@ app.post("/api/payments/webhook", async (req, res) => {
         );
       }
 
-      // Mark the invoice as paid
       if (paymentAttempt.invoice_id) {
         await client.query(
           `
@@ -332,14 +320,9 @@ app.post("/api/payments/webhook", async (req, res) => {
   }
 });
 
-// Serve frontend
-app.use(
-  express.static(
-    path.join(__dirname, "public")
-  )
+app.use( express.static( path.join(__dirname, "public"))
 );
 
-// Health check
 app.get("/api/health", async (req, res) => {
   try {
     const result = await pool.query(
@@ -366,9 +349,6 @@ app.get("/api/health", async (req, res) => {
   }
 });
 
-// Start server
 app.listen(PORT, () => {
-  console.log(
-    `NovaPay running at http://localhost:${PORT}`
-  );
+  console.log( `NovaPay running at http://localhost:${PORT}`);
 });

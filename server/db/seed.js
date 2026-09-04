@@ -8,9 +8,6 @@ async function seedDatabase() {
     try {
         await client.query("BEGIN");
 
-        /*
-         * Customer
-         */
 
         const customerResult = await client.query(
             `
@@ -34,9 +31,7 @@ async function seedDatabase() {
         const customerId = customerResult.rows[0].id;
 
 
-        /*
-         * Billing Profile
-         */
+    
 
         await client.query(
             `
@@ -59,12 +54,6 @@ async function seedDatabase() {
         );
 
 
-        /*
-         * Payment Method
-         *
-         * Only demo reference data.
-         * No real card number is stored.
-         */
 
         const paymentMethodResult = await client.query(
             `
@@ -97,9 +86,6 @@ async function seedDatabase() {
             paymentMethodResult.rows[0].id;
 
 
-        /*
-         * Invoice
-         */
 
         const invoiceResult = await client.query(
             `
@@ -142,11 +128,6 @@ async function seedDatabase() {
 
         const invoiceId = invoiceResult.rows[0].id;
 
-
-        /*
-         * Invoice Items
-         */
-
         await client.query(
             `
             INSERT INTO invoice_items (
@@ -187,11 +168,6 @@ async function seedDatabase() {
             ]
         );
 
-
-        /*
-         * Successful previous transaction
-         */
-
         await client.query(
             `
             INSERT INTO transactions (
@@ -226,10 +202,6 @@ async function seedDatabase() {
             ]
         );
 
-
-        /*
-         * Another successful transaction
-         */
 
         await client.query(
             `

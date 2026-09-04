@@ -1,18 +1,13 @@
 const pool = require("../db/database");
 
-async function createPayment(req, res) {
-    const client = await pool.connect();
+async function createPayment(req, res){const client = await pool.connect();
 
     try {
         const { invoiceId } = req.body;
 
-        if (!invoiceId) {
-            return res.status(400).json({
-                error: "Invoice ID is required"
-            });
-        }
+        if (!invoiceId) { 
+            return res.status(400).json({error: "Invoice ID is required"}); }
 
-        // Get invoice
         const invoiceResult = await client.query(
             `
             SELECT
@@ -30,24 +25,18 @@ async function createPayment(req, res) {
         );
 
         if (invoiceResult.rows.length === 0) {
-            return res.status(404).json({
-                error: "Invoice not found"
-            });
+            return res.status(404).json({ error: "Invoice not found"});
         }
 
         const invoice = invoiceResult.rows[0];
 
-        // Only unpaid invoices can be paid
         if (
             invoice.status !== "open" &&
             invoice.status !== "overdue"
         ) {
-            return res.status(400).json({
-                error: "This invoice cannot be paid."
-            });
+            return res.status(400).json({ error: "This invoice cannot be paid."});
         }
 
-        // Get customer
         const customerResult = await client.query(
             `
             SELECT
@@ -62,36 +51,19 @@ async function createPayment(req, res) {
         );
 
         if (customerResult.rows.length === 0) {
-            return res.status(404).json({
-                error: "Customer not found"
-            });
+            return res.status(404).json({ error: "Customer not found" });
         }
 
         const customer = customerResult.rows[0];
+        const amountInKobo = Math.round( Number(invoice.total) * 100 );
 
-        /*
-         * Paystack expects the amount
-         * in the smallest currency unit.
-         *
-         * ₦85,000 = 8,500,000 kobo
-         */
-        const amountInKobo = Math.round(
-            Number(invoice.total) * 100
-        );
-
-        /*
-         * Create a unique reference
-         * for this payment attempt.
-         */
-        const reference =
-            `INV-${invoice.id}-${Date.now()}`;
+        const reference =`INV-${invoice.id}-${Date.now()}`;
 
         // Initialize payment with Paystack
         const paystackResponse = await fetch(
             "https://api.paystack.co/transaction/initialize",
             {
                 method: "POST",
-
                 headers: {
                     Authorization:
                         `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
@@ -115,9 +87,7 @@ async function createPayment(req, res) {
                   callback_url:
     `${process.env.APP_URL}/payment/callback`,
 
-metadata: {
-    invoice_id:
-        String(invoice.id),
+metadata: {invoice_id:String(invoice.id),
 
     invoice_number:
         invoice.invoice_number,
@@ -129,30 +99,19 @@ metadata: {
             }
         );
 
-        const paystackData =
-            await paystackResponse.json();
+        const paystackData = await paystackResponse.json();
 
         if (
             !paystackResponse.ok ||
             !paystackData.status
         ) {
             console.error(
-                "Paystack initialization failed:",
-                paystackData
-            );
+                "Paystack initialization failed:", paystackData );
 
             return res.status(502).json({
-                error:
-                    "Unable to initialize payment."
-            });
+                error: "Unable to initialize payment."  });
         }
 
-        /*
-         * Paystack successfully created
-         * the payment session.
-         *
-         * Now save our own payment attempt.
-         */
         await client.query(
             `
             INSERT INTO payment_attempts (
@@ -188,23 +147,15 @@ metadata: {
             ]
         );
 
-        /*
-         * Send checkout information
-         * back to the frontend.
-         */
         return res.status(201).json({
 
-            message:
-                "Payment initialized successfully.",
+            message:  "Payment initialized successfully.",
 
-            reference:
-                paystackData.data.reference,
+            reference: paystackData.data.reference,
 
-            authorizationUrl:
-                paystackData.data.authorization_url,
+            authorizationUrl: paystackData.data.authorization_url,
 
-            accessCode:
-                paystackData.data.access_code,
+            accessCode: paystackData.data.access_code,
 
             invoice: {
                 id:
@@ -225,13 +176,11 @@ metadata: {
     } catch (error) {
 
         console.error(
-            "Failed to initialize payment:",
-            error
+            "Failed to initialize payment:",error
         );
 
         return res.status(500).json({
-            error:
-                "Unable to initialize payment."
+            error: "Unable to initialize payment."
         });
 
     } finally {
@@ -254,9 +203,7 @@ async function verifyPayment(req, res) {
         const { reference } = req.params;
 
         if (!reference) {
-            return res.status(400).json({
-                error: "Payment reference is required"
-            });
+            return res.status(400).json({ error: "Payment reference is required" });
         }
 
         // Find our payment attempt first
@@ -279,17 +226,11 @@ async function verifyPayment(req, res) {
         );
 
         if (attemptResult.rows.length === 0) {
-            return res.status(404).json({
-                error: "Payment attempt not found"
-            });
+            return res.status(404).json({ error: "Payment attempt not found"});
         }
 
         const attempt = attemptResult.rows[0];
 
-        /*
-         * Ask Paystack for the actual
-         * transaction status.
-         */
         const paystackResponse = await fetch(
             `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
             {
@@ -310,31 +251,24 @@ async function verifyPayment(req, res) {
             !paystackData.status
         ) {
             console.error(
-                "Paystack verification failed:",
-                paystackData
+                "Paystack verification failed:",paystackData
             );
 
             return res.status(502).json({
-                error:
-                    "Unable to verify payment."
+                error: "Unable to verify payment."
             });
         }
 
         const transaction =
             paystackData.data;
 
-        /*
-         * Verify the important values.
-         */
 
         const expectedAmount =
-            Math.round(
-                Number(attempt.amount) * 100
+            Math.round(Number(attempt.amount) * 100
             );
 
         const amountMatches =
-            Number(transaction.amount) ===
-            expectedAmount;
+            Number(transaction.amount) === expectedAmount;
 
         const currencyMatches =
             String(transaction.currency || "")
@@ -346,10 +280,6 @@ async function verifyPayment(req, res) {
             transaction.reference ===
             attempt.provider_reference;
 
-        /*
-         * Do NOT mark anything as paid
-         * unless every important check passes.
-         */
         if (
             transaction.status !== "success" ||
             !amountMatches ||
@@ -387,18 +317,10 @@ async function verifyPayment(req, res) {
             });
         }
 
-        /*
-         * Everything checks out.
-         *
-         * Start a database transaction so all
-         * local payment records are updated atomically.
-         */
+   
         await client.query("BEGIN");
         transactionStarted = true;
 
-        /*
-         * Prevent duplicate processing.
-         */
         const existingTransaction =
             await client.query(
                 `
@@ -447,9 +369,6 @@ async function verifyPayment(req, res) {
             );
         }
 
-        /*
-         * Mark the payment attempt successful.
-         */
         await client.query(
             `
             UPDATE payment_attempts
@@ -461,12 +380,6 @@ async function verifyPayment(req, res) {
             [attempt.id]
         );
 
-        /*
-         * Mark the invoice as paid.
-         *
-         * The status check prevents an already-paid
-         * invoice from being unnecessarily updated.
-         */
         await client.query(
             `
             UPDATE invoices
@@ -523,7 +436,4 @@ async function verifyPayment(req, res) {
 }
 
 
-module.exports = {
-    createPayment,
-    verifyPayment
-};
+module.exports = { createPayment, verifyPayment };

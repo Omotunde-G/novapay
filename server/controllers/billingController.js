@@ -4,8 +4,7 @@ const { generateInvoiceForSubscription} = require("../../services/invoiceGenerat
 
 async function getBillingOverview(req, res) {
     try {
-        // For this demo, i used Mr Alpha's first customer.
-        // Later this will come from the authenticated user.
+
         const customerResult = await pool.query(
             `
             SELECT
@@ -28,7 +27,6 @@ async function getBillingOverview(req, res) {
 
         const customer = customerResult.rows[0];
 
-        // Get outstanding invoices
         const invoiceResult = await pool.query(
             `
             SELECT
@@ -70,7 +68,7 @@ if (invoiceResult.rows.length > 0) {
         [upcomingInvoiceId]
     );
 }
-        // Calculate amount currently due
+   
         const amountDue = invoiceResult.rows.reduce(
             (total, invoice) => {
                 return total + Number(invoice.total);
@@ -78,7 +76,7 @@ if (invoiceResult.rows.length > 0) {
             0
         );
 
-        // Get recent transactions
+
         const transactionResult = await pool.query(
             `
             SELECT
@@ -96,7 +94,6 @@ if (invoiceResult.rows.length > 0) {
             [customer.id]
         );
 
-        // Get default payment method
         const paymentMethodResult = await pool.query(
             `
             SELECT
@@ -151,7 +148,6 @@ async function testGenerateInvoice(req, res) {
 
     try {
 
-        // For this demo, use Mr Alpha's active subscription
         const subscriptionResult = await pool.query(
             `
             SELECT id

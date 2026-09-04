@@ -6,8 +6,6 @@ async function generateInvoiceForSubscription(subscriptionId) {
     try {
         await client.query("BEGIN");
 
-        // Lock the subscription so two billing processes
-        // cannot generate the same billing cycle simultaneously.
         const subscriptionResult = await client.query(
             `
             SELECT
@@ -35,8 +33,6 @@ async function generateInvoiceForSubscription(subscriptionId) {
 const billingDate =
     subscription.next_billing_date;
 
-// Prevent generating a new recurring invoice
-// while an earlier invoice is still unpaid.
 const outstandingInvoiceResult =
     await client.query(
         `
@@ -71,14 +67,13 @@ if (outstandingInvoiceResult.rows.length > 0) {
     };
 }
 
-// billingDate is already YYYY-MM-DD
+
 const [year, month, day] =
     billingDate.split("-");
 
         const invoiceNumber =
             `INV-${year}-${month}${day}`;
 
-        // Check whether this billing cycle already has an invoice.
         const existingInvoiceResult =
             await client.query(
                 `
@@ -103,7 +98,6 @@ const [year, month, day] =
             };
         }
 
-        // Get subscription items.
         const itemsResult = await client.query(
             `
             SELECT
@@ -123,7 +117,6 @@ const [year, month, day] =
             );
         }
 
-        // Calculate subtotal.
         let subtotal = 0;
 
         for (const item of itemsResult.rows) {
@@ -138,7 +131,6 @@ const [year, month, day] =
         const total =
             subtotal + tax;
 
-        // Create invoice.
         const invoiceResult =
             await client.query(
                 `
@@ -180,7 +172,7 @@ const [year, month, day] =
         const invoice =
             invoiceResult.rows[0];
 
-        // Copy subscription items into invoice items.
+   
         for (const item of itemsResult.rows) {
 
             const amount =
@@ -214,7 +206,7 @@ const [year, month, day] =
             );
         }
 
-        // Calculate the next billing date.
+
         let nextBillingDate = null;
 
         if (
@@ -262,7 +254,7 @@ const [year, month, day] =
             );
         }
 
-        // Move subscription to the next billing cycle.
+
         await client.query(
             `
             UPDATE subscriptions
@@ -296,6 +288,4 @@ const [year, month, day] =
     }
 }
 
-module.exports = {
-    generateInvoiceForSubscription
-};
+module.exports = { generateInvoiceForSubscription};

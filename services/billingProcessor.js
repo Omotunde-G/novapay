@@ -75,9 +75,6 @@ async function processRecurringBilling() {
                     error.message
                 );
 
-                // Continue processing other subscriptions.
-                // One failed subscription should not stop
-                // the entire billing run.
             }
         }
 

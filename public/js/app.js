@@ -63,9 +63,7 @@ function updateBillingDashboard(data) {
     }
 
 
-    /*
-     * Transactions
-     */
+
 
     renderTransactions(
         data.transactions,
@@ -73,9 +71,7 @@ function updateBillingDashboard(data) {
     );
 
 
-    /*
-     * Upcoming Invoice
-     */
+
 
     renderUpcomingInvoice(data);
 }
@@ -100,9 +96,7 @@ function renderNextPayment(data) {
             : null;
 
 
-    /*
-     * No upcoming payment
-     */
+
 
     if (!invoice) {
 
@@ -116,9 +110,7 @@ function renderNextPayment(data) {
     }
 
 
-    /*
-     * Payment amount
-     */
+
 
     amountElement.textContent =
         formatCurrency(
@@ -127,9 +119,7 @@ function renderNextPayment(data) {
         );
 
 
-    /*
-     * Payment date
-     */
+
 
     if (invoice.due_date) {
 
@@ -245,19 +235,11 @@ async function handlePaymentReturn() {
             );
 
 
-            /*
-             * Reload billing data so the
-             * invoice/transactions reflect
-             * the new payment.
-             */
+        
 
             await loadBillingOverview();
 
 
-            /*
-             * Remove payment reference
-             * from browser URL.
-             */
 
             window.history.replaceState(
                 {},
@@ -425,7 +407,7 @@ function createInvoiceModal(data) {
         data.invoiceItems || [];
 
 
-    // No invoice available
+
 
     if (!invoice) {
 
@@ -693,10 +675,7 @@ payButton?.addEventListener(
 
         try {
 
-            /*
-             * If Paystack has already initialized
-             * the payment, continue to checkout.
-             */
+        
 
             if (modal.dataset.authorizationUrl) {
 
@@ -758,10 +737,7 @@ payButton?.addEventListener(
             }
 
 
-            /*
-             * Store the Paystack checkout URL
-             * on the modal.
-             */
+    
 
             modal.dataset.authorizationUrl =
                 result.authorizationUrl;
@@ -771,9 +747,7 @@ payButton?.addEventListener(
                 result.reference;
 
 
-            /*
-             * Update the button.
-             */
+
 
             payButton.disabled = false;
 
@@ -867,10 +841,10 @@ function renderTransactions(transactions, paymentMethod) {
         return;
     }
 
-    // Clear the "Loading transactions..." message
+
     container.replaceChildren();
 
-    // Handle an empty transaction history
+
     if (!transactions || transactions.length === 0) {
 
         const emptyMessage =
@@ -887,7 +861,7 @@ function renderTransactions(transactions, paymentMethod) {
         return;
     }
 
-    // Create each transaction
+ 
     transactions.forEach((transaction) => {
 
         const transactionElement =
@@ -897,7 +871,7 @@ function renderTransactions(transactions, paymentMethod) {
             "transaction";
 
 
-        // Transaction icon
+      
 
         const icon =
             document.createElement("div");
@@ -908,7 +882,6 @@ function renderTransactions(transactions, paymentMethod) {
         icon.textContent = "TX";
 
 
-        // Transaction details
 
         const details =
             document.createElement("div");
@@ -947,7 +920,7 @@ function renderTransactions(transactions, paymentMethod) {
         details.appendChild(meta);
 
 
-        // Amount and status
+      
 
         const right =
             document.createElement("div");
@@ -980,7 +953,7 @@ function renderTransactions(transactions, paymentMethod) {
         right.appendChild(status);
 
 
-        // Assemble transaction
+ 
 
         transactionElement.appendChild(icon);
         transactionElement.appendChild(details);
