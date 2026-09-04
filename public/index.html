@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>NovaPay — Billing Dashboard</title>
+
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="./js/app.js"></script>
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="brand">
+                <div class="brand-mark">N</div>
+                <span>NovaPay</span>
+            </div>
+
+            <nav class="navigation">
+
+                <p class="nav-label">MAIN</p>
+
+                <a href="#" class="nav-item active">
+                    <span>▦</span>
+                    Dashboard
+                </a>
+
+                <a href="#" class="nav-item">
+                    <span>◫</span>
+                    Billing
+                </a>
+
+                <a href="#" class="nav-item">
+                    <span>↔</span>
+                    Transactions
+                </a>
+
+                <a href="#" class="nav-item">
+                    <span>▤</span>
+                    Invoices
+                </a>
+
+                <p class="nav-label">ACCOUNT</p>
+
+                <a href="#" class="nav-item">
+                    <span>▣</span>
+                    Payment Methods
+                </a>
+
+                <a href="#" class="nav-item">
+                    <span>⚙</span>
+                    Settings
+                </a>
+
+            </nav>
+
+            <div class="sidebar-bottom">
+
+                <div class="support-card">
+                    <strong>Need help?</strong>
+                    <p>Our support team is here for you.</p>
+                    <button>Contact Support</button>
+                </div>
+
+                <div class="user-profile">
+                    <div class="avatar">MA</div>
+
+                    <div class="user-info">
+                        <strong>Mr Alpha</strong>
+                        <span>Business Account</span>
+                    </div>
+
+                    <span class="profile-menu">•••</span>
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Top bar -->
+            <header class="topbar">
+
+                <div>
+                    <h1>Billing Overview</h1>
+                    <p>Manage your payments and billing information.</p>
+                </div>
+
+                <div class="topbar-actions">
+
+                    <button class="icon-button" aria-label="Notifications">
+                        ♧
+                    </button>
+
+                    <button class="avatar small">
+                        MA
+                    </button>
+
+                </div>
+
+            </header>
+
+
+            <!-- Overview cards -->
+ <section class="overview-grid">
+
+    <!-- Wallet Balance -->
+    <div class="balance-card">
+
+        <div class="card-header">
+            <span>Wallet Balance</span>
+            <span class="card-icon">₦</span>
+        </div>
+
+        <h2 class="balance-amount">
+            Coming Soon
+        </h2>
+
+        <p class="positive">
+            Wallet deposits will be available soon
+        </p>
+
+    </div>
+
+
+    <!-- Next Payment -->
+    <div class="stat-card">
+
+        <div class="card-header">
+            <span>Next Payment</span>
+            <span class="card-icon">↗</span>
+        </div>
+
+        <h2 id="next-payment-amount">
+            ₦0.00
+        </h2>
+
+        <p class="due-date" id="next-payment-date">
+            No upcoming payment
+        </p>
+
+    </div>
+
+</section>
+
+
+            <!-- Billing content -->
+            <section class="content-grid">
+
+                <!-- Transactions -->
+                <div class="panel transactions-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h3>Recent Transactions</h3>
+                            <p>Your latest payment activity.</p>
+                        </div>
+
+                        <button class="text-button">
+                            View all
+                        </button>
+
+                    </div>
+
+
+                   <div class="transactions" id="transactions-list">
+
+    <div class="transaction-loading">
+        Loading transactions...
+    </div>
+
+</div>
+
+                </div>
+
+
+                <!-- Right column -->
+                <div class="right-column">
+
+                    <!-- Payment method -->
+                    <div class="panel">
+
+                        <div class="panel-header">
+
+                            <div>
+                                <h3>Payment Method</h3>
+                                <p>Default payment method.</p>
+                            </div>
+
+                            <button class="text-button">
+                                Manage
+                            </button>
+
+                        </div>
+
+                        <div class="payment-method">
+                            
+                            <div class="card-brand" id="payment-card-brand">
+                                VISA
+                            </div>
+
+                            <div class="payment-info">
+                                <strong id="payment-card-number"> •••• •••• •••• 4821</strong>
+                                <span id="payment-card-expire">Expires 09/28</span>
+                            </div>
+
+                            <span class="default-badge">
+                                Default
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Upcoming invoice -->
+                  <div class="panel invoice-card">
+
+    <div class="panel-header">
+
+        <div>
+            <h3>Upcoming Invoice</h3>
+
+            <p id="invoice-period">
+                September 2026
+            </p>
+        </div>
+
+        <span class="invoice-status">
+            Upcoming
+        </span>
+
+    </div>
+
+
+    <div
+        class="invoice-amount"
+        id="invoice-total"
+    >
+        ₦85,000.00
+    </div>
+
+
+    <div id="invoice-items">
+
+        <div class="invoice-row">
+            <span>Loading...</span>
+        </div>
+
+    </div>
+
+
+    <div class="invoice-divider"></div>
+
+
+    <div class="invoice-row total">
+
+        <span>Total</span>
+
+        <strong id="invoice-total-bottom">
+            ₦85,000.00
+        </strong>
+
+    </div>
+
+
+    <button class="primary-button">
+        Pay Invoice
+    </button>
+
+</div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script src="/js/app.js"></script>
+
+</body>
+</html>
